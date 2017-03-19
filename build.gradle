@@ -1,0 +1,16 @@
+group 'com.teamtreehouse'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'org.hibernate:hibernate-gradle-plugin:5.2.8.Final'
+    compile 'com.h2database:h2:1.0.60'
+    compile 'javax.transaction:jta:1.1'
+}
