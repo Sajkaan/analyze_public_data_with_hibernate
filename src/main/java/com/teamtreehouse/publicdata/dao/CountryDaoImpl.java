@@ -88,6 +88,11 @@ public class CountryDaoImpl implements CountryDao {
     }
 
     @Override
+    public void updateCountries(List<Country> updatedCountries) {
+        countries = updatedCountries;
+    }
+
+    @Override
     public Country findCountryByCode(List<Country> countries, String code) {
         return countries.stream()
                 .filter(country -> country.getCode().equals(code))

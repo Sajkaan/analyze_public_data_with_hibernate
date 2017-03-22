@@ -10,6 +10,7 @@ public interface CountryDao {
     void saveCountry(Country country);
     void deleteCountry(Country country);
     List<Country> fetchAllCountries();
+    void updateCountries(List<Country> updatedCountries);
     Country findCountryByCode(List<Country> countries, String code);
     Country minimumInternetUsers();
     Country maximumInternetUsers();
