@@ -1,22 +1,16 @@
-package com.teamtreehouse.publicdata.model;
+package com.teamtreehouse.public_data.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class Country {
     @Id
-    @Column(name = "CODE", columnDefinition = "VARCHAR(3)")
     private String code;
 
-    @Column(name = "NAME", columnDefinition = "VARCHAR(32)")
     private String name;
 
-    @Column(name = "INTERNETUSERS", columnDefinition = "DECIMAL(11,8)")
     private Double internetUsers;
 
-    @Column(name = "ADULTLITERACYRATE", columnDefinition = "DECIMAL(11, 8)")
     private Double adultLiteracyRate;
 
     public Country(){}
@@ -26,6 +20,16 @@ public class Country {
         this.name = builder.name;
         this.internetUsers = builder.internetUsers;
         this.adultLiteracyRate = builder.adultLiteracyRate;
+    }
+
+    @Override
+    public String toString() {
+        return "Country{" +
+                "code='" + code + '\'' +
+                ", name='" + name + '\'' +
+                ", internetUsers=" + internetUsers +
+                ", adultLiteracyRate=" + adultLiteracyRate +
+                '}';
     }
 
     public String getCode() {
@@ -80,7 +84,7 @@ public class Country {
             return this;
         }
 
-        public CountryBuilder withAdultLiteracyRate(Double adultLiteracyRate) {
+        public CountryBuilder withAdultLiteracy(Double adultLiteracyRate) {
             this.adultLiteracyRate = adultLiteracyRate;
             return this;
         }

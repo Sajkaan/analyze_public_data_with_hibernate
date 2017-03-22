@@ -1,15 +1,13 @@
-package com.teamtreehouse.publicdata.dao;
+package com.teamtreehouse.public_data.dao;
 
-import com.teamtreehouse.publicdata.model.Country;
+import com.teamtreehouse.public_data.model.Country;
+import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.service.ServiceRegistry;
 
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -63,7 +61,7 @@ public class CountryDaoImpl implements CountryDao {
 
         session.beginTransaction();
 
-        session.save(country);
+        session.delete(country);
 
         session.getTransaction().commit();
 
@@ -74,13 +72,18 @@ public class CountryDaoImpl implements CountryDao {
     public List<Country> fetchAllCountries() {
         Session session = sessionFactory.openSession();
 
-        CriteriaBuilder builder = session.getCriteriaBuilder();
+/*        CriteriaBuilder builder = session.getCriteriaBuilder();
 
         CriteriaQuery<Country> criteria = builder.createQuery(Country.class);
 
         criteria.from(Country.class);
 
-        List<Country> countries = session.createQuery(criteria).getResultList();
+        List<Country> countries = session.createQuery(criteria).getResultList();*/
+
+
+        Criteria criteria = session.createCriteria(Country.class);
+        List<Country> countries = criteria.list();
+
 
         session.close();
 

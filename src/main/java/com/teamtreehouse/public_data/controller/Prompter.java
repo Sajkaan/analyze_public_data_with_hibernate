@@ -1,10 +1,11 @@
-package com.teamtreehouse.publicdata.controller;
+package com.teamtreehouse.public_data.controller;
 
-import com.teamtreehouse.publicdata.dao.CountryDao;
-import com.teamtreehouse.publicdata.model.Country;
+import com.teamtreehouse.public_data.dao.CountryDao;
+import com.teamtreehouse.public_data.model.Country;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.*;
 
 public class Prompter {
@@ -16,6 +17,7 @@ public class Prompter {
     public Prompter(CountryDao countryDao) {
         this.countryDao = countryDao;
         countries = new ArrayList<>(countryDao.fetchAllCountries());
+        reader = new BufferedReader(new InputStreamReader(System.in));
         menu = new HashMap<>();
         menu.put(1, "View country data");
         menu.put(2, "Edit country");
@@ -34,7 +36,7 @@ public class Prompter {
         int choice = 0;
         System.out.println("--------------------------------------------");
 
-        for (Map.Entry<Integer, String> option : menu) {
+        for (Map.Entry<Integer, String> option : menu.entrySet()) {
             System.out.printf("%n%d - %s%n",
                     option.getKey(),
                     option.getValue());
@@ -68,9 +70,9 @@ public class Prompter {
                     case 4:
                         deleteCountry();
                         break;
-                    case 5:
+/*                    case 5:
                         viewStatistics();
-                        break;
+                        break;*/
                     case 6:
                         System.out.println("Thank you. Please come again.");
                         System.exit(0);
@@ -104,28 +106,28 @@ public class Prompter {
 
     private void editCountryData() throws IOException {
         Country country = promptForCountry(countries);
-
-        country.setCode(promptForCode());
-        country.setName(promptForCountryName());
-        country.setInternetUsers(promptForInternetUsers());
-        country.setAdultLiteracyRate(promptForAdultLiteracy());
-
-        countryDao.updateCountry(country);
-        countryDao.updateCountries(countries);
-        System.out.println("Country successfully edited.");
+        if (country != null) {
+            System.out.println("Type your new values.");
+            country.setCode(promptForCode());
+            country.setName(promptForCountryName());
+            country.setInternetUsers(promptForInternetUsers());
+            country.setAdultLiteracyRate(promptForAdultLiteracy());
+            countryDao.updateCountry(country);
+            countryDao.updateCountries(countries);
+            System.out.println("Country successfully edited.");
+        } else {
+            System.out.println("No country found");
+        }
     }
 
     private Country promptForCountry(List<Country> countries) throws IOException {
         String searchedCode = promptForCode();
-        return countries.stream()
-                .filter(country -> country.getCode().equals(searchedCode.toUpperCase()))
-                .findFirst()
-                .orElse(null);
+        return countryDao.findCountryByCode(countries,searchedCode);
     }
 
     private String promptForCode() throws IOException {
         String code = "";
-        System.out.println("Enter 3 digit code.");
+        System.out.println("Enter 3 letter code.");
         do {
             try {
                 code = reader.readLine();
@@ -133,10 +135,11 @@ public class Prompter {
                 System.out.println("Invalid input.");
             }
         } while (code.length() != 3 || code.equals(""));
-        return code;
+
+        return code.toUpperCase();
     }
 
-    private String promptForCountryName() {
+    private String promptForCountryName() throws IOException{
         String name = "";
 
         do {
@@ -146,7 +149,8 @@ public class Prompter {
             } catch (IOException ioe) {
                 System.out.println("Invalid input.");
             }
-        } while (name.length() < 32 || !name.equals(""))
+        } while (name.length() > 32 || name.equals(""));
+
         return name;
     }
 
@@ -155,25 +159,31 @@ public class Prompter {
 
         do {
             try {
+                System.out.println("Type the percentage of internet users: ");
                 internetUsers = Double.valueOf(reader.readLine());
             } catch (IOException ioe) {
                 System.out.println("Invalid input. Try again.");
+            } catch (NumberFormatException nfe) {
+                System.out.println("Type a number.");
             }
-        } while (internetUsers < 100 || internetUsers >= 0);
+        } while (internetUsers > 100 || internetUsers < 0);
 
         return internetUsers;
     }
 
-    private Double promptForAdultLiteracy() {
+    private Double promptForAdultLiteracy() throws IOException{
         Double adultLiteracy = -1.0;
 
         do {
             try {
+                System.out.println("Type the percentage of adult literacy : ");
                 adultLiteracy = Double.valueOf(reader.readLine());
             } catch (IOException ioe) {
                 System.out.println("Invalid input. Try again.");
+            } catch (NumberFormatException nfe) {
+                System.out.println("Type a number.");
             }
-        } while (adultLiteracy < 100 || adultLiteracy >= 0);
+        } while (adultLiteracy > 100 || adultLiteracy < 0);
 
         return adultLiteracy;
     }
@@ -182,7 +192,7 @@ public class Prompter {
         Country country = new Country.CountryBuilder(promptForCode())
                 .withName(promptForCountryName())
                 .withInternetUsers(promptForInternetUsers())
-                .withAdultLiteracyRate(promptForAdultLiteracy())
+                .withAdultLiteracy(promptForAdultLiteracy())
                 .build();
         countryDao.saveCountry(country);
         countries.add(country);
@@ -192,10 +202,15 @@ public class Prompter {
 
     private void deleteCountry() throws IOException {
         Country country = promptForCountry(countries);
-        countryDao.deleteCountry(country);
-        countries.remove(country);
-        countryDao.updateCountries(countries);
-        System.out.println("Country deleted");
+        if (country != null) {
+            countryDao.deleteCountry(country);
+            countries.remove(country);
+            countryDao.updateCountries(countries);
+
+            System.out.println("Country deleted");
+        } else {
+            System.out.println("No country found to delete.");
+        }
     }
 
 

@@ -1,7 +1,7 @@
-package com.teamtreehouse.publicdata.dao;
+package com.teamtreehouse.public_data.dao;
 
 
-import com.teamtreehouse.publicdata.model.Country;
+import com.teamtreehouse.public_data.model.Country;
 
 import java.util.List;
 
