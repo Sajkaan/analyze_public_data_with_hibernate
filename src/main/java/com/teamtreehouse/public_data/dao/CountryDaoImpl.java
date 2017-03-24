@@ -1,13 +1,16 @@
 package com.teamtreehouse.public_data.dao;
 
 import com.teamtreehouse.public_data.model.Country;
-import org.hibernate.Criteria;
+import org.apache.commons.math3.exception.MathIllegalArgumentException;
+import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.service.ServiceRegistry;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -72,18 +75,13 @@ public class CountryDaoImpl implements CountryDao {
     public List<Country> fetchAllCountries() {
         Session session = sessionFactory.openSession();
 
-/*        CriteriaBuilder builder = session.getCriteriaBuilder();
+        CriteriaBuilder builder = session.getCriteriaBuilder();
 
         CriteriaQuery<Country> criteria = builder.createQuery(Country.class);
 
         criteria.from(Country.class);
 
-        List<Country> countries = session.createQuery(criteria).getResultList();*/
-
-
-        Criteria criteria = session.createCriteria(Country.class);
-        List<Country> countries = criteria.list();
-
+        List<Country> countries = session.createQuery(criteria).getResultList();
 
         session.close();
 
@@ -138,6 +136,7 @@ public class CountryDaoImpl implements CountryDao {
     @Override
     public Double averageInternetUsers() {
         return countries.stream()
+                .filter(country -> country.getInternetUsers() != null)
                 .mapToDouble(Country::getInternetUsers)
                 .average()
                 .getAsDouble();
@@ -146,8 +145,39 @@ public class CountryDaoImpl implements CountryDao {
     @Override
     public Double averageAdultLiteracy() {
         return countries.stream()
+                .filter(country -> country.getAdultLiteracyRate() != null)
                 .mapToDouble(Country::getAdultLiteracyRate)
                 .average()
                 .getAsDouble();
+    }
+
+    @Override
+    public Double getCorrelationCoefficient() {
+        Double correlation;
+
+        double[] internetUsers = countries
+                .stream()
+                .filter(country -> country.getInternetUsers() != null)
+                .filter(country -> country.getAdultLiteracyRate() != null)
+                .mapToDouble(Country::getInternetUsers)
+                .toArray();
+
+        double[] adultLiteracy = countries
+                .stream()
+                .filter(country -> country.getInternetUsers() != null)
+                .filter(country -> country.getAdultLiteracyRate() != null)
+                .mapToDouble(Country::getAdultLiteracyRate)
+                .toArray();
+
+        try {
+            correlation = new PearsonsCorrelation()
+                    .correlation(internetUsers, adultLiteracy);
+        } catch (MathIllegalArgumentException mae) {
+            System.out.println("Insufficient data");
+            return null;
+        }
+
+
+        return correlation;
     }
 }

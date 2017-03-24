@@ -28,20 +28,20 @@ public class Prompter {
     }
 
     public void startPrompter() {
-        System.out.println("ANALYZE PUBLIC DATA WITH HIBERNATE");
+        System.out.println("ANALYZE PUBLIC DATA WITH HIBERNATE\n");
         menuController();
     }
 
     private int promptForMenu() throws IOException {
         int choice = 0;
-        System.out.println("--------------------------------------------");
+        System.out.println("+------+--------------------------------+----------------+----------+");
 
         for (Map.Entry<Integer, String> option : menu.entrySet()) {
             System.out.printf("%n%d - %s%n",
                     option.getKey(),
                     option.getValue());
         }
-        System.out.println("      ENTER A NUMBER FOR YOUR CHOICE        ");
+        System.out.println("SELECT FROM THE MENU\n");
 
         try {
             choice = Integer.parseInt(reader.readLine());
@@ -70,9 +70,9 @@ public class Prompter {
                     case 4:
                         deleteCountry();
                         break;
-/*                    case 5:
+                    case 5:
                         viewStatistics();
-                        break;*/
+                        break;
                     case 6:
                         System.out.println("Thank you. Please come again.");
                         System.exit(0);
@@ -105,6 +105,8 @@ public class Prompter {
     }
 
     private void editCountryData() throws IOException {
+        System.out.println("EDITING");
+        System.out.println("+------+--------------------------------+----------------+----------+");
         Country country = promptForCountry(countries);
         if (country != null) {
             System.out.println("Type your new values.");
@@ -122,13 +124,14 @@ public class Prompter {
 
     private Country promptForCountry(List<Country> countries) throws IOException {
         String searchedCode = promptForCode();
-        return countryDao.findCountryByCode(countries,searchedCode);
+        return countryDao.findCountryByCode(countries, searchedCode);
     }
 
     private String promptForCode() throws IOException {
         String code = "";
-        System.out.println("Enter 3 letter code.");
+
         do {
+            System.out.println("Enter 3 letter code.");
             try {
                 code = reader.readLine();
             } catch (IOException ioe) {
@@ -139,7 +142,7 @@ public class Prompter {
         return code.toUpperCase();
     }
 
-    private String promptForCountryName() throws IOException{
+    private String promptForCountryName() throws IOException {
         String name = "";
 
         do {
@@ -171,7 +174,7 @@ public class Prompter {
         return internetUsers;
     }
 
-    private Double promptForAdultLiteracy() throws IOException{
+    private Double promptForAdultLiteracy() throws IOException {
         Double adultLiteracy = -1.0;
 
         do {
@@ -189,6 +192,9 @@ public class Prompter {
     }
 
     private void addCountry() throws IOException {
+        System.out.println("ADDING");
+        System.out.println("+------+--------------------------------+----------------+----------+");
+
         Country country = new Country.CountryBuilder(promptForCode())
                 .withName(promptForCountryName())
                 .withInternetUsers(promptForInternetUsers())
@@ -201,6 +207,9 @@ public class Prompter {
     }
 
     private void deleteCountry() throws IOException {
+        System.out.println("DELETING");
+        System.out.println("+------+--------------------------------+----------------+----------+");
+
         Country country = promptForCountry(countries);
         if (country != null) {
             countryDao.deleteCountry(country);
@@ -214,4 +223,25 @@ public class Prompter {
     }
 
 
+    private void viewStatistics() {
+        System.out.println("STATISTICS");
+        System.out.println("+------+--------------------------------+----------------+----------+");
+        System.out.printf("Country with the lowest percentage of internet users:%n %s : %.2f%n%n",
+                countryDao.minimumInternetUsers().getName(), countryDao.minimumInternetUsers().getInternetUsers());
+        System.out.printf("Country with the highest percentage of internet users:%n %s : %.2f%n%n",
+                countryDao.maximumInternetUsers().getName(), countryDao.maximumInternetUsers().getInternetUsers());
+
+        System.out.printf("Country with the lowest percentage of adult literacy:%n %s : %.2f%n%n",
+                countryDao.minimumAdultLiteracy().getName(), countryDao.minimumAdultLiteracy().getAdultLiteracyRate());
+        System.out.printf("Country with the highest percentage of adult literacy:%n %s : %.2f%n%n",
+                countryDao.maximumAdultLiteracy().getName(), countryDao.maximumAdultLiteracy().getAdultLiteracyRate());
+
+        System.out.printf("Average internet users:%n %.2f%n",
+                countryDao.averageInternetUsers());
+        System.out.printf("Average adult literacy:%n %.2f%n",
+                countryDao.averageAdultLiteracy());
+
+        System.out.printf("Correlation coefficient between internet users and adult literacy: %.2f%n",
+                countryDao.getCorrelationCoefficient());
+    }
 }

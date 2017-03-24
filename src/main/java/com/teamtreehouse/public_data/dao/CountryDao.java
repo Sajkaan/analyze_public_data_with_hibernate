@@ -18,4 +18,6 @@ public interface CountryDao {
     Country maximumAdultLiteracy();
     Double averageInternetUsers();
     Double averageAdultLiteracy();
+
+    Double getCorrelationCoefficient();
 }
